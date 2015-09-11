@@ -46,6 +46,7 @@ func (a *LogstashAdapter) CreateNewConnection() (err error) {
   	return err
   }
   a.conn = conn
+  return nil
 }
 
 // Stream implements the router.LogAdapter interface.
