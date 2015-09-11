@@ -56,13 +56,15 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		}
 		_, err = a.conn.Write(js)
 		if err != nil {
-			log.Println("fatal logstash:", err)
 			if a.previouslyConnected {
+			  log.Println("fatal logstash:", err)
 			  os.Exit(3)
 			} else {
+			  log.Println("logstash (will retry):", err)
 			  continue
 			}
 		}
+		log.Println("successful write")
 		a.previouslyConnected := true
 	}
 }
