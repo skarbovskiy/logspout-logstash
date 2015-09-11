@@ -18,7 +18,7 @@ func init() {
 type LogstashAdapter struct {
 	conn  net.Conn
 	route *router.Route
-	previouslyConnected bool
+	transport *router.Transport
 }
 
 // NewLogstashAdapter creates a LogstashAdapter with UDP as the default transport.
@@ -34,16 +34,19 @@ func NewLogstashAdapter(route *router.Route) (router.LogAdapter, error) {
 	}
 
 	return &LogstashAdapter{
-		route: route,
-		conn:  conn,
+		route: 	   route,
+		conn:  	   conn,
+		transport: transport,
 	}, nil
 }
 
-// SetName receives a pointer to Foo so it can modify it.
-func (a *LogstashAdapter) SetPreviouslyConnected(previouslyConnected bool) {
-    a.previouslyConnected = previouslyConnected
+func (a *LogstashAdapter) CreateNewConnection() {
+  conn, err := a.transport.Dial(a.route.Address, a.route.Options)
+  if err != nil {
+  	return nil, err
+  }
+  a.conn = conn
 }
-
 
 // Stream implements the router.LogAdapter interface.
 func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
@@ -62,16 +65,15 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		}
 		_, err = a.conn.Write(js)
 		if err != nil {
-			if a.previouslyConnected {
-			  log.Println("fatal logstash:", err)
-			  os.Exit(3)
-			} else {
-			  log.Println("logstash (will retry):", err)
-			  continue
-			}
+		  log.Println("logstash (new connection):", err)
+		  _, errorConnecting = a.CreateNewConnection()
+		  if errorConnecting != nil {
+		    log.Println('fatal: could not reconnect')
+		    os.Exit(3)
+		  }
+
 		}
 		log.Println("successful write")
-		a.SetPreviouslyConnected(true)
 	}
 }
 
