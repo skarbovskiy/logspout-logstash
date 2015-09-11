@@ -40,7 +40,7 @@ func NewLogstashAdapter(route *router.Route) (router.LogAdapter, error) {
 	}, nil
 }
 
-func (a *LogstashAdapter) CreateNewConnection(error) {
+func (a *LogstashAdapter) CreateNewConnection() (err error) {
   conn, err := a.transport.Dial(a.route.Address, a.route.Options)
   if err != nil {
   	return err
