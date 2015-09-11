@@ -45,6 +45,7 @@ func (a *LogstashAdapter) CreateNewConnection() (err error) {
   if err != nil {
   	return err
   }
+  log.Println("Connection reestablished")
   a.conn = conn
   return nil
 }
@@ -72,9 +73,7 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		    log.Println("fatal: could not reconnect:", err)
 		    os.Exit(3)
 		  }
-
 		}
-		log.Println("successful write")
 	}
 }
 
