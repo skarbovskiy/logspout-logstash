@@ -68,7 +68,7 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		  log.Println("logstash (new connection):", err)
 		  _, errorConnecting = a.CreateNewConnection()
 		  if errorConnecting != nil {
-		    log.Println('fatal: could not reconnect')
+		    log.Println("fatal: could not reconnect:", errorConnecting)
 		    os.Exit(3)
 		  }
 
