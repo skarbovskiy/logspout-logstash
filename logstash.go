@@ -18,7 +18,7 @@ func init() {
 type LogstashAdapter struct {
 	conn  net.Conn
 	route *router.Route
-	previouslyConnected bool = false
+	previouslyConnected bool
 }
 
 // NewLogstashAdapter creates a LogstashAdapter with UDP as the default transport.
@@ -38,6 +38,12 @@ func NewLogstashAdapter(route *router.Route) (router.LogAdapter, error) {
 		conn:  conn,
 	}, nil
 }
+
+// SetName receives a pointer to Foo so it can modify it.
+func (a *LogstashAdapter) SetPreviouslyConnected(previouslyConnected bool) {
+    a.previouslyConnected = previouslyConnected
+}
+
 
 // Stream implements the router.LogAdapter interface.
 func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
@@ -65,7 +71,7 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 			}
 		}
 		log.Println("successful write")
-		a.previouslyConnected := true
+		a.SetPreviouslyConnected(true)
 	}
 }
 
