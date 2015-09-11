@@ -18,6 +18,7 @@ func init() {
 type LogstashAdapter struct {
 	conn  net.Conn
 	route *router.Route
+	previouslyConnected bool = false
 }
 
 // NewLogstashAdapter creates a LogstashAdapter with UDP as the default transport.
@@ -56,8 +57,13 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		_, err = a.conn.Write(js)
 		if err != nil {
 			log.Println("fatal logstash:", err)
-			os.Exit(3)
+			if a.previouslyConnected {
+			  os.Exit(3)
+			} else {
+			  continue
+			}
 		}
+		a.previouslyConnected := true
 	}
 }
 
