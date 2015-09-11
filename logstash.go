@@ -18,7 +18,7 @@ func init() {
 type LogstashAdapter struct {
 	conn  net.Conn
 	route *router.Route
-	transport *router.AdapterTransport
+	transport router.AdapterTransport
 }
 
 // NewLogstashAdapter creates a LogstashAdapter with UDP as the default transport.
@@ -40,10 +40,10 @@ func NewLogstashAdapter(route *router.Route) (router.LogAdapter, error) {
 	}, nil
 }
 
-func (a *LogstashAdapter) CreateNewConnection() {
+func (a *LogstashAdapter) CreateNewConnection(error) {
   conn, err := a.transport.Dial(a.route.Address, a.route.Options)
   if err != nil {
-  	return nil, err
+  	return err
   }
   a.conn = conn
 }
@@ -66,9 +66,9 @@ func (a *LogstashAdapter) Stream(logstream chan *router.Message) {
 		_, err = a.conn.Write(js)
 		if err != nil {
 		  log.Println("logstash (new connection):", err)
-		  _, errorConnecting = a.CreateNewConnection()
-		  if errorConnecting != nil {
-		    log.Println("fatal: could not reconnect:", errorConnecting)
+		  err = a.CreateNewConnection()
+		  if err != nil {
+		    log.Println("fatal: could not reconnect:", err)
 		    os.Exit(3)
 		  }
 
