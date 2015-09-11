@@ -18,7 +18,7 @@ func init() {
 type LogstashAdapter struct {
 	conn  net.Conn
 	route *router.Route
-	transport *router.AdapterTransport("udp")
+	transport *router.udpTransport
 }
 
 // NewLogstashAdapter creates a LogstashAdapter with UDP as the default transport.
